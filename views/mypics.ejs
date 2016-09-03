@@ -1,0 +1,147 @@
+ <% include ./partials/header %>
+  <!-- Modal -->
+  <% if(user) { %>
+<div id="theModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+      <h4 class="modal-title">Add a new Picture:</h4>
+      </div>
+      <div class="modal-body">
+        <form class='form' action='/api/pics/new' method='POST'>
+         <div class='form-group'>
+             <label for='imageField'>Image URL</label>
+             <input type='text' class='form-control' id='imageField' name='imageField' placeholder='Paste image URL here'>
+         </div>
+         <div class='form-group'>
+         <label for='commentsField'>Comments</label>
+             <input type='text' class='form-control' id='commentsField' name='commentsField' placeholder='Enter comments about image'>
+         </div>
+         <div class='form-group'>
+             <input type='hidden' class='form-control' id='useridField' name='useridField' value='<%=user.id%>'>
+         </div>
+         <div class='form-group'>
+             <input type='hidden' class='form-control' id='userimgField' name='userimgField' value="<%=user.photos[0].value%>">
+         </div>
+         <button type='submit' class='btn btn-primary'>Piculate!</button>
+     </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-warning" data-dismiss="modal">Never Mind</button>
+      </div>
+    </div>
+
+  </div>
+</div> <!-- ------------- End Modal --------------------- -->
+ <% } %>
+ 
+ <div class='container main-container' ng-controller='main'>
+  <div class='row masonry-container'>
+    <% pics.forEach(function(pic){ %>
+   <div class="col-md-4 col-sm-6 item">
+    <div class='pic-listing'>
+     <img src='<%=pic.url%>' class='img img-responsive'>
+       <p class='pic-info'><%= pic.description %></p>
+       <div class='pic-box'>
+     <img ng-src=<%=pic.userimg%> class='img img-rounded pull-left' style='width: 40px; height: 40px;'>
+     <button ng-click="delPic('<%=pic._id%>')" class='btn btn-sm btn-danger' style='margin-top: 5px;'><i class="fa fa-trash-o"></i></button>
+     <button ng-click="vote('<%=pic._id%>', '<%=user.id%>')" class='btn btn-sm btn-default pull-right' style='margin-top: 5px;'><i class="fa fa-star"></i>&nbsp;<%=pic.votes%></button>
+    </span>
+    </div>
+  
+   </div>
+   
+  </div>
+  <% }) %>
+ </div>
+ </div>
+ 
+ <!-- masonry example - see app.css for sizes -->
+ 
+ <!--
+ 
+ <div class="grid">
+  <div class="grid-item">...</div>
+  <div class="grid-item grid-item--width2">...</div>
+  <div class="grid-item">...</div>
+  ...
+</div>
+ 
+ -->
+ 
+  <script>
+     $(startup);
+     
+     function startup(){
+          $(".nav li").removeClass("active");
+           $('#mypics').addClass('active');
+           
+     var $container = $('.masonry-container');
+	    $container.imagesLoaded( function () {
+		     $container.masonry({
+			       columnWidth: '.item',
+			       itemSelector: '.item',
+			        isAnimated: true
+		     });
+	    });
+	   
+   }
+     
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+ <script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-route.js'></script>
+<script>
+var app = angular.module('myApp', ["ngRoute"]);
+
+app.controller('main', ['$scope', '$window', '$http', '$route', function($scope, $window, $http, $route) {
+ 
+  $scope.pics=[];
+ 
+    $http.get("/api/userpics/" + "<%=user.id %>").then(function (result) {
+      
+        for(var i=0; i<result.data.length; i++){
+            $scope.pics.push(result.data[i]);
+        }
+    });
+    
+     $scope.delPic = function(id){
+          $http.delete('/api/pics/' + id, null);
+          $window.location.reload();
+      }
+      
+      $scope.vote=function(picid, userid){
+      var loc=0;
+      //find the pic in the array
+      for(var i=0; i< $scope.pics.length; i++){
+         if($scope.pics[i]._id == picid){
+          loc=i;
+          break;
+         }
+      }
+      //look for voter in pic
+      var loc2=-1;
+      for(var i=0; i<$scope.pics[loc].voters.length; i++){
+         if($scope.pics[loc].voters[i]==userid){
+          loc2=i;
+         }
+      }
+      
+      if(loc2 == -1){
+       $scope.pics[loc].votes++;
+       $scope.pics[loc].voters.push(userid);
+      }
+      else{
+       $scope.pics[loc].votes--;
+       $scope.pics[loc].voters.splice(loc2);
+      }
+      $http.post('/api/vote/' + picid + '/' + userid);
+       $window.location.reload();
+     }
+   
+}]);
+
+</script>
+
+ <% include ./partials/footer %> 
+ 
