@@ -6,11 +6,14 @@ var mongoose=require('mongoose'),
     
 var Strategy = require('passport-twitter').Strategy;
 var Pic = require('./models/pic');
-mongoose.connect("mongodb://localhost/piculator");
+var dburl = 'mongodb://jjmuggs:jakeman@ds019976.mlab.com:19976/piculator';
+//mongoose.connect("mongodb://localhost/piculator");
+mongoose.connect(process.env.DBURL || "mongodb://localhost/piculator");
 
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({extended:true}));
+
 
 //passport twitter stuff
 passport.use(new Strategy({

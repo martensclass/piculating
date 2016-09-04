@@ -99,7 +99,6 @@ app.controller('main', ['$scope', '$window', '$http', '$route', function($scope,
   $scope.pics=[];
  
     $http.get("/api/userpics/" + "<%=user.id %>").then(function (result) {
-      
         for(var i=0; i<result.data.length; i++){
             $scope.pics.push(result.data[i]);
         }
