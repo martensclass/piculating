@@ -19,7 +19,7 @@ app.use(bodyParser.urlencoded({extended:true}));
 passport.use(new Strategy({
     consumerKey: 'zhulyz5JBShC4S2GsdZHTI4rS',
     consumerSecret: 'zdzo8CFwAdQjczHfdmWpfiaL0qXEOmtm8fFvwc6pWst0o2xEgi',
-    callbackURL: 'https://piculating-martensclass.c9users.io/auth/twitter/callback'
+    callbackURL: 'https://immense-dusk-72309.herokuapp.com/auth/twitter/callback'
   },
   function(token, tokenSecret, profile, cb) {
     // In this example, the user's Twitter profile is supplied as the user
